@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_serv.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbolano- <mbolano-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: anonymous <anonymous@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/11/27 13:33:37 by mbolano-         ###   ########.fr       */
+/*   Updated: 2025/11/27 23:49:28 by anonymous        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct s_client {
-    int id;
-    char *buffer;
-} t_client;
+typedef struct	s_client {
+    int		id;	 		// Identificador único del cliente.
+    char	*buffer;	// Buffer para almacenar datos parciales recibidos del cliente. Maneja mensajes fragmentados o múltiples mensajes en un solo recv().
+}	t_client;
 
-t_client clients[65536];
-int next_id = 0;
-int max_fd = 0;
-int sockfd;
-fd_set read_fds, active_fds;
+// Variables globales:
+t_client	clients[65536]; // El valor 65536 se usar porque es el número máximo de "file descriptors" posibles en un sistema UNIX/Linux.
+int			next_id = 0;
+int			max_fd = 0;
+int			sockfd;
+fd_set		read_fds, active_fds;
 
 void fatal_error(void)
 {
@@ -163,43 +164,61 @@ void handle_client_data(int fd)
     }
 }
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
-    int connfd;
-    socklen_t len;
-    struct sockaddr_in servaddr, cli;
-    
-    if (argc != 2)
-    {
-        write(2, "Wrong number of arguments\n", 26);
-        exit(1);
-    }
-    
-    for (int i = 0; i < 65536; i++)
-    {
-        clients[i].id = -1;
-        clients[i].buffer = NULL;
-    }
-    
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1)
-        fatal_error();
-    
-    max_fd = sockfd;
-    FD_ZERO(&active_fds);
-    FD_SET(sockfd, &active_fds);
-    
-    bzero(&servaddr, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(2130706433);
-    servaddr.sin_port = htons(atoi(argv[1]));
-    
-    if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
-        fatal_error();
-    
-    if (listen(sockfd, 128) != 0)
-        fatal_error();
-    
+	int					connfd;
+	socklen_t			len;
+	// La estructura sockaddr_in está definida en <netinet/in.h> y se utiliza para manejar direcciones IP y puertos en sockets de red.
+	//	struct sockaddr_in {
+	//		short            sin_family;	<- Familia de direcciones (AF_INET para IPv4)
+	//		unsigned short   sin_port;		<- Puerto (en formato de red)
+	//		struct in_addr   sin_addr;		<- Dirección IP (en formato de red)
+	//		char             sin_zero[8];	<- Relleno para igualar tamaño con sockaddr
+	//	};
+	struct sockaddr_in 	servaddr, cli;
+	// Tal y como se pide en el enunciado, el servidor solo acepta un argumento: el puerto.
+	if (argc != 2)
+	{
+		write(2, "Wrong number of arguments\n", 26);
+		exit(1);
+	}
+	
+	// A continuación, almacenamos el file descriptor del socket del servidor en la variable global "sockfd":
+	// - AF_INET (Address Family Internet): Protocolo IPv4.
+	// - SOCK_STREAM: Tipo de socket orientado a conexión (TCP).
+	// - 0: Protocolo por defecto (TCP para SOCK_STREAM).
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	// Comprobamos si la creación del socket fue exitosa:
+	if (sockfd == -1)
+		fatal_error();
+	// Inicializamos max_fd con el valor del socket del servidor, porque es el primer file descriptor activo. A medida que se acepten nuevas conexiones, max_fd se actualizará con el valor del file descriptor más alto en uso:
+	max_fd = sockfd;
+	// La siguiente función inicializa a "ZERO" el conjunto de descriptores de archivo activos (active_fds):
+	FD_ZERO(&active_fds);
+	// Y, a continuación, añadimos el socket del servidor al conjunto de descriptores de archivo activos:
+	FD_SET(sockfd, &active_fds);
+	// OJO: sockfd, max_fd y active_fds son VARIABLES GLOBALES.
+	// Ahora, configuramos la estructura servaddr para enlazar el socket del servidor a la dirección IP y puerto especificados:
+	//	- bzero: Inicializa la estructura a cero.
+	bzero(&servaddr, sizeof(servaddr));
+	//	- sin_family: Familia de direcciones (AF_INET para IPv4).
+	servaddr.sin_family = AF_INET;
+	//	- sin_addr.s_addr: Dirección IP en formato de red (localhost en este caso).
+	servaddr.sin_addr.s_addr = htonl(2130706433); // htonl convierte la dirección IP de formato host a formato de red. 2130706433 es la representación numérica de 127.0.0.1 (localhost)
+	//	- sin_port: Puerto en formato de red (convertido de cadena a entero).
+	servaddr.sin_port = htons(atoi(argv[1])); // htons convierte el puerto de formato host a formato de red. atoi convierte la cadena del argumento a un entero.
+	// Enlazamos el socket del servidor a la dirección y puerto especificados en servaddr:
+	if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) != 0) // Si el puerto proporcionado como argumento fuera erróneo, bind() devolvería un valor distinto de cero y terminaría el programa.
+		fatal_error();
+	// Por último, ponemos el socket del servidor en modo escucha para aceptar conexiones entrantes:
+	if (listen(sockfd, 128) != 0) // El valor 128 es el tamaño máximo (predeterminado) de la cola de conexiones pendientes. Se puede aumentar en Linux, por ejemplo, a 1024: "sudo sysctl -w net.core.somaxconn=1024"
+		fatal_error();
+	// Inicialización de la estructura de cliente ahora, porque puede haber ocurrido algún error que haya provocado la terminación del programa antes de entrar en el bucle principal:
+	for (int i = 0; i < 65536; i++)
+	{
+		clients[i].id = -1;
+		clients[i].buffer = NULL;
+	}
     while (1)
     {
         read_fds = active_fds;
