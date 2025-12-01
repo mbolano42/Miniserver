@@ -6,13 +6,15 @@
 /*   By: anonymous <anonymous@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/12/01 13:52:38 by anonymous        ###   ########.fr       */
+/*   Updated: 2025/12/01 14:36:30 by anonymous        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <errno.h> // Biblioteca para manejo de errores (errno). No se usa directamente en este código, pero es buena práctica incluirla al trabajar con funciones del sistema que pueden fallar.
+#include <netdb.h> // Biblioteca para manejo de bases de datos de red. No se usa directamente en este código, pero es común incluirla en programas de red.
 #include <string.h> // Funcionas para manejo de cadenas: strlen(), strcpy(), strcat() y bzero().
 #include <unistd.h> // Funciones del sistema: write(), close() y read().
-#include <sys/socket.h> // Funciones y estructuras para manejo de sockets: socket(), bind(), listen(), accept(), recv(), send().
+#include <sys/socket.h> // Funciones: socket(), bind(), listen(), accept(), recv(), send(); tipo de datos: socklen_t; y estructuras: struct sockaddr [las funciones bind() y accept() esperan un putero a "struct sockaddr *", por lo que se ha de castear la variable: "(struct sockaddr *)&servaddr"]; para manejo de sockets.
 #include <sys/select.h> // Funciones y macros para manejo de select(): select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO.
 #include <netinet/in.h> // Estructuras: struct sockaddr_in; constantes: AF_INET; y funciones: htons(), htonl(); para manejo de direcciones de red.
 #include <stdlib.h> // Funciones de gestión de memoria dinámica: malloc(), free(), calloc(), exit(); y conversión de cadenas: atoi().
