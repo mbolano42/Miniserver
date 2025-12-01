@@ -6,19 +6,17 @@
 /*   By: anonymous <anonymous@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/11/27 23:49:28 by anonymous        ###   ########.fr       */
+/*   Updated: 2025/12/01 13:52:38 by anonymous        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <netinet/in.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <string.h> // Funcionas para manejo de cadenas: strlen(), strcpy(), strcat() y bzero().
+#include <unistd.h> // Funciones del sistema: write(), close() y read().
+#include <sys/socket.h> // Funciones y estructuras para manejo de sockets: socket(), bind(), listen(), accept(), recv(), send().
+#include <sys/select.h> // Funciones y macros para manejo de select(): select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO.
+#include <netinet/in.h> // Estructuras: struct sockaddr_in; constantes: AF_INET; y funciones: htons(), htonl(); para manejo de direcciones de red.
+#include <stdlib.h> // Funciones de gestión de memoria dinámica: malloc(), free(), calloc(), exit(); y conversión de cadenas: atoi().
+#include <stdio.h> // Funciones de entrada/salida: sprintf().
 
 typedef struct	s_client {
     int		id;	 		// Identificador único del cliente.
