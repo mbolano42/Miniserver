@@ -6,7 +6,7 @@
 /*   By: mbolano- <mbolano-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/12/03 16:04:37 by mbolano-         ###   ########.fr       */
+/*   Updated: 2025/12/03 16:19:48 by mbolano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,11 @@ int	extract_message(char **buf, char **msg)
 		if ((*buf)[i] == '\n')
 		{
 			// Reservamos memoria para el nuevo buffer e inicializamos a cero:
-			newbuf = calloc(1, sizeof(*newbuf) * (strlen(*buf + i + 1) + 1));
+			newbuf = calloc(1, sizeof(*newbuf) * (strlen(*buf + i + 1) + 1)); // strlen(*buf + i + 1) calcula la longitud del contenido restante después del mensaje extraído.
 			// Si no se puede asignar memoria para el nuevo buffer, devolvemos -1 indicando un error.
 			if (newbuf == 0)
 				return (-1);
-			// Copiamos el contenido restante del buffer original (después del mensaje extraído) al nuevo buffer:
+			// Copiamos el contenido restante del buffer original (después del mensaje extraído: "*buf + i + 1") al nuevo buffer:
 			strcpy(newbuf, *buf + i + 1);
 			// Asignamos el mensaje extraído a *msg:
 			*msg = *buf;
@@ -72,6 +72,9 @@ int	extract_message(char **buf, char **msg)
 	}
 	return (0);
 }
+
+// Función para concatenar dos cadenas, liberando la primera si es necesario.
+// Esta función viene incluida en el "main.c" proporcionado por el enunciado.
 
 char *str_join(char *buf, char *add)
 {
