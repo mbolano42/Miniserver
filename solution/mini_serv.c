@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_serv.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anonymous <anonymous@student.42.fr>        +#+  +:+       +#+        */
+/*   By: mbolano- <mbolano-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/12/01 14:36:30 by anonymous        ###   ########.fr       */
+/*   Updated: 2025/12/03 16:04:37 by mbolano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 #include <stdio.h> // Funciones de entrada/salida: sprintf().
 
 typedef struct	s_client {
-    int		id;	 		// Identificador único del cliente.
-    char	*buffer;	// Buffer para almacenar datos parciales recibidos del cliente. Maneja mensajes fragmentados o múltiples mensajes en un solo recv().
+	int		id;			// Identificador único del cliente.
+	char	*buffer;	// Buffer para almacenar datos parciales recibidos del cliente. Maneja mensajes fragmentados o múltiples mensajes en un solo recv().
 }	t_client;
 
 // Variables globales:
@@ -32,37 +32,45 @@ int			max_fd = 0;
 int			sockfd;
 fd_set		read_fds, active_fds;
 
-void fatal_error(void)
-{
-    write(2, "Fatal error\n", 12);
-    exit(1);
-}
+// Función para extraer un mensaje completo (terminado en '\n') del buffer del cliente.
+// Esta función viene incluida en el "main.c" proporcionado por el enunciado.
 
-int extract_message(char **buf, char **msg)
+int	extract_message(char **buf, char **msg)
 {
-    char *newbuf;
-    int i;
+	// Nueva variable para almacenar el nuevo buffer después de extraer el mensaje:
+	char *newbuf;
+	int i;
 
-    *msg = 0;
-    if (*buf == 0)
-        return (0);
-    i = 0;
-    while ((*buf)[i])
-    {
-        if ((*buf)[i] == '\n')
-        {
-            newbuf = calloc(1, sizeof(*newbuf) * (strlen(*buf + i + 1) + 1));
-            if (newbuf == 0)
-                return (-1);
-            strcpy(newbuf, *buf + i + 1);
-            *msg = *buf;
-            (*msg)[i + 1] = 0;
-            *buf = newbuf;
-            return (1);
-        }
-        i++;
-    }
-    return (0);
+	// Inicializamos *msg a NULL:
+	*msg = 0;
+	// Si el buffer es NULL, no hay nada que extraer:
+	if (*buf == 0)
+		return (0);
+	i = 0;
+	// Recorremos el buffer buscando el carácter de nueva línea ('\n'):
+	while ((*buf)[i])
+	{
+		// Encontramos el carácter de nueva línea:
+		if ((*buf)[i] == '\n')
+		{
+			// Reservamos memoria para el nuevo buffer e inicializamos a cero:
+			newbuf = calloc(1, sizeof(*newbuf) * (strlen(*buf + i + 1) + 1));
+			// Si no se puede asignar memoria para el nuevo buffer, devolvemos -1 indicando un error.
+			if (newbuf == 0)
+				return (-1);
+			// Copiamos el contenido restante del buffer original (después del mensaje extraído) al nuevo buffer:
+			strcpy(newbuf, *buf + i + 1);
+			// Asignamos el mensaje extraído a *msg:
+			*msg = *buf;
+			// Terminamos el mensaje en la posición del carácter de nueva línea:
+			(*msg)[i + 1] = 0;
+			// Actualizamos el buffer original para que apunte al nuevo buffer:
+			*buf = newbuf;
+			return (1);
+		}
+		i++;
+	}
+	return (0);
 }
 
 char *str_join(char *buf, char *add)
@@ -83,6 +91,12 @@ char *str_join(char *buf, char *add)
     free(buf);
     strcat(newbuf, add);
     return (newbuf);
+}
+
+void	fatal_error(void)
+{
+	write(2, "Fatal error\n", 12);
+	exit(1);
 }
 
 void send_to_all(int sender_fd, char *msg)
