@@ -6,7 +6,7 @@
 /*   By: anonymous <anonymous@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/12/04 06:29:29 by anonymous        ###   ########.fr       */
+/*   Updated: 2025/12/04 06:32:06 by anonymous        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,11 @@
 #include <string.h> // Funcionas para manejo de cadenas: strlen(), strcpy(), strcat() y bzero().
 #include <unistd.h> // Funciones del sistema: write(), close() y read().
 #include <sys/socket.h> // Funciones: socket(), bind(), listen(), accept(), recv(), send(); tipo de datos: socklen_t; y estructuras: struct sockaddr [las funciones bind() y accept() esperan un putero a "struct sockaddr *", por lo que se ha de castear la variable: "(struct sockaddr *)&servaddr"]; para manejo de sockets.
-#include <sys/select.h> // Funciones y macros para manejo de select(): select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO.
 #include <netinet/in.h> // Estructuras: struct sockaddr_in; constantes: AF_INET; y funciones: htons(), htonl(); para manejo de direcciones de red.
+// --------------------------------------------------------------------------
+// Bibliotecas adicionales necesarias para la implementación del ejercicio:
+// --------------------------------------------------------------------------
+#include <sys/select.h> // Funciones y macros para manejo de select(): select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO.
 #include <stdlib.h> // Funciones de gestión de memoria dinámica: malloc(), free(), calloc(), exit(); y conversión de cadenas: atoi().
 #include <stdio.h> // Funciones de entrada/salida: sprintf().
 
