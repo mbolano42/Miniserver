@@ -6,7 +6,7 @@
 /*   By: anonymous <anonymous@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/12/04 06:27:33 by anonymous        ###   ########.fr       */
+/*   Updated: 2025/12/04 06:29:29 by anonymous        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ typedef struct	s_client {
 }	t_client;
 
 // Variables globales:
-t_client	clients[65536]; // El valor 65536 se usar porque es el número máximo de "file descriptors" posibles en un sistema UNIX/Linux.
+t_client	clients[65536]; // El valor 65536 se usar porque es el número máximo de "file descriptors" posibles en un sistema UNIX/Linux de 16 bits.
 int			next_id = 0;
 int			max_fd = 0;
 int			sockfd;
