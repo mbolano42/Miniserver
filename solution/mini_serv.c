@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_serv.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbolano- <mbolano-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: anonymous <anonymous@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 13:33:34 by mbolano-          #+#    #+#             */
-/*   Updated: 2025/12/03 16:19:48 by mbolano-         ###   ########.fr       */
+/*   Updated: 2025/12/04 06:27:33 by anonymous        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,9 @@ int	extract_message(char **buf, char **msg)
 	int i;
 
 	// Inicializamos *msg a NULL:
-	*msg = 0;
+	*msg = NULL;
 	// Si el buffer es NULL, no hay nada que extraer:
-	if (*buf == 0)
+	if (*buf == NULL)
 		return (0);
 	i = 0;
 	// Recorremos el buffer buscando el carácter de nueva línea ('\n'):
@@ -54,16 +54,16 @@ int	extract_message(char **buf, char **msg)
 		if ((*buf)[i] == '\n')
 		{
 			// Reservamos memoria para el nuevo buffer e inicializamos a cero:
-			newbuf = calloc(1, sizeof(*newbuf) * (strlen(*buf + i + 1) + 1)); // strlen(*buf + i + 1) calcula la longitud del contenido restante después del mensaje extraído.
+			newbuf = calloc(strlen(*buf + i + 1) + 1, sizeof(char)); // strlen(*buf + i + 1) calcula la longitud del contenido restante después del mensaje extraído.
 			// Si no se puede asignar memoria para el nuevo buffer, devolvemos -1 indicando un error.
-			if (newbuf == 0)
+			if (newbuf == NULL)
 				return (-1);
 			// Copiamos el contenido restante del buffer original (después del mensaje extraído: "*buf + i + 1") al nuevo buffer:
 			strcpy(newbuf, *buf + i + 1);
 			// Asignamos el mensaje extraído a *msg:
 			*msg = *buf;
 			// Terminamos el mensaje en la posición del carácter de nueva línea:
-			(*msg)[i + 1] = 0;
+			(*msg)[i + 1] = '\0';
 			// Actualizamos el buffer original para que apunte al nuevo buffer:
 			*buf = newbuf;
 			return (1);
@@ -75,25 +75,25 @@ int	extract_message(char **buf, char **msg)
 
 // Función para concatenar dos cadenas, liberando la primera si es necesario.
 // Esta función viene incluida en el "main.c" proporcionado por el enunciado.
+// No obstante, se ha modificado para mejorar su legibilidad.
 
-char *str_join(char *buf, char *add)
+char	*str_join(char *buf, char *add)
 {
-    char *newbuf;
-    int len;
+	char *newbuf;
+	int len;
 
-    if (buf == 0)
-        len = 0;
-    else
-        len = strlen(buf);
-    newbuf = malloc(sizeof(*newbuf) * (len + strlen(add) + 1));
-    if (newbuf == 0)
-        return (0);
-    newbuf[0] = 0;
-    if (buf != 0)
-        strcat(newbuf, buf);
-    free(buf);
-    strcat(newbuf, add);
-    return (newbuf);
+	if (buf == NULL)
+		len = 0;
+	else
+		len = strlen(buf);
+	newbuf = calloc(len + strlen(add) + 1, sizeof(char));
+	if (newbuf == NULL)
+		return (NULL);
+	if (buf != NULL)
+		strcat(newbuf, buf);
+	free(buf);
+	strcat(newbuf, add);
+	return (newbuf);
 }
 
 void	fatal_error(void)
