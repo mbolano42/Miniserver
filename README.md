@@ -1,5 +1,8 @@
 # 🖥️ Mini Serv - Servidor de Chat
 
+## Navegación
+- Guía paso a paso (solution): [`solution/README.md`](solution/README.md)
+
 ## 📋 Información del Ejercicio
 
 | Campo | Valor |
@@ -134,6 +137,40 @@ nc 127.0.0.1 8080
 
 ---
 
+## Diagrama de flujo
+
+```mermaid
+flowchart TD
+  A[Start: ./mini_serv <puerto>] --> B[Crear socket servidor: socket()]
+  B --> C[Configurar dirección 127.0.0.1:puerto]
+  C --> D[bind()]
+  D --> E[listen()]
+  E --> F[active_fds = {sockfd}]
+  F --> G{{Bucle infinito}}
+  G --> H[read_fds = active_fds]
+  H --> I[select(read_fds)]
+  I --> J{¿fd listo?}
+  J -->|sockfd listo| K[accept() => connfd]
+  K --> L[Asignar id / guardar estado]
+  L --> M[FD_SET(connfd)]
+  M --> N[Broadcast: "server: client X just arrived\n"]
+  N --> G
+  J -->|cliente fd listo| O[recv(fd)]
+  O --> P{ret <= 0?}
+  P -->|Sí| Q[Broadcast: "server: client X just left\n"]
+  Q --> R[FD_CLR(fd) / free(buffer) / close(fd)]
+  R --> G
+  P -->|No| S[Acumular en clients[fd].buffer]
+  S --> T{¿Hay línea con \n?}
+  T -->|Sí (repetir)| U[Extraer 1 línea]
+  U --> V[Construir: "client X: <línea>"]
+  V --> W[send_to_all (a otros clientes)]
+  W --> T
+  T -->|No| G
+```
+
+---
+
 ## 📁 Archivos de Ayuda
 
 Se proporciona el archivo `main.c` con:
@@ -141,29 +178,6 @@ Se proporciona el archivo `main.c` con:
 - Algunas funciones útiles
 
 > ⚠️ **Cuidado**: Este archivo usa funciones prohibidas o escribe cosas que no deben estar en tu programa final.
-
----
-
-## ✅ Checklist de Requisitos
-
-- [ ] Puerto como argumento
-- [ ] Error si no hay argumentos
-- [ ] Solo escucha en 127.0.0.1
-- [ ] IDs secuenciales (0, 1, 2...)
-- [ ] Mensaje de llegada a todos
-- [ ] Mensaje de salida a todos
-- [ ] Retransmisión con prefijo `client %d: `
-- [ ] No-bloqueante con `select()`
-- [ ] Sin `#define`
-- [ ] Sin memory leaks
-- [ ] Sin fd leaks
-- [ ] No desconectar clientes lentos
-
----
-
-## ⏱️ Nota sobre la Evaluación
-
-> La evaluación puede ser **un poco más larga** de lo habitual...
 
 ---
 
