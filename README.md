@@ -169,6 +169,21 @@ flowchart TD
   T -->|"No"| G
 ```
 
+### Leyenda (1 palabra)
+
+| Llamada | Significado |
+|---|---|
+| `socket()` | Creación |
+| `bind()` | Enlace |
+| `listen()` | Escucha |
+| `accept()` | Aceptación |
+| `select()` | Multiplexación |
+| `recv()` | Recepción |
+| `send()` | Envío |
+| `close()` | Cierre |
+| `FD_SET` | Registro |
+| `FD_CLR` | Eliminación |
+
 ---
 
 ## 📁 Archivos de Ayuda

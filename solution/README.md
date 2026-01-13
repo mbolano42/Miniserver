@@ -38,6 +38,21 @@ flowchart TD
   T -->|"No"| G
 ```
 
+### Leyenda (1 palabra)
+
+| Llamada | Significado |
+|---|---|
+| `socket()` | Creación |
+| `bind()` | Enlace |
+| `listen()` | Escucha |
+| `accept()` | Aceptación |
+| `select()` | Multiplexación |
+| `recv()` | Recepción |
+| `send()` | Envío |
+| `close()` | Cierre |
+| `FD_SET` | Registro |
+| `FD_CLR` | Eliminación |
+
 Este documento te guía desde `files/main.c` (archivo base del enunciado) hasta una solución completa tipo `solution/mini_serv.c`, usando bloques **ANTES / DESPUÉS** listos para copiar y pegar.
 
 > Nota: el archivo `files/main.c` del subject es un ejemplo (usa funciones prohibidas como `printf`). En tu `mini_serv.c` final solo deben quedar las funciones permitidas y los mensajes exactos del subject.
