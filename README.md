@@ -141,30 +141,30 @@ nc 127.0.0.1 8080
 
 ```mermaid
 flowchart TD
-  A["Start: ./mini_serv (puerto)"] --> B["socket(): crear"]
-  B --> C["addr: preparar"]
-  C --> D["bind(): asociar"]
-  D --> E["listen(): cola"]
-  E --> F["fd_set: maestro"]
-  F --> G{"loop: infinito"}
-  G --> H["fd_set: copia"]
-  H --> I["select(): esperar"]
-  I --> J{"listo?"}
-  J -->|"sockfd"| K["accept(): nuevo"]
-  K --> L["id: asignar"]
-  L --> M["FD_SET: incluir"]
-  M --> N["broadcast: arrived"]
+  A["Start: ./mini_serv (puerto)"] --> B["Crear socket servidor: socket()"]
+  B --> C["Configurar direccion 127.0.0.1:puerto"]
+  C --> D["bind()"]
+  D --> E["listen()"]
+  E --> F["active_fds = {sockfd}"]
+  F --> G{"Bucle infinito"}
+  G --> H["read_fds = active_fds"]
+  H --> I["select(read_fds)"]
+  I --> J{"fd listo?"}
+  J -->|"sockfd listo"| K["accept() -> connfd"]
+  K --> L["Asignar id / guardar estado"]
+  L --> M["FD_SET(connfd)"]
+  M --> N["Broadcast: server: client X just arrived \\n"]
   N --> G
-  J -->|"cliente"| O["recv(): leer"]
-  O --> P{"EOF/error?"}
-  P -->|"Si"| Q["broadcast: left"]
-  Q --> R["limpiar: salir"]
+  J -->|"cliente fd listo"| O["recv(fd)"]
+  O --> P{"ret <= 0?"}
+  P -->|"Si"| Q["Broadcast: server: client X just left \\n"]
+  Q --> R["FD_CLR(fd) / free(buffer) / close(fd)"]
   R --> G
-  P -->|"No"| S["buffer: acumular"]
-  S --> T{"linea completa?"}
-  T -->|"Si"| U["extraer: 1 linea"]
-  U --> V["prefijo: client"]
-  V --> W["send(): reenviar"]
+  P -->|"No"| S["Acumular en clients[fd].buffer"]
+  S --> T{"Hay linea con \\n?"}
+  T -->|"Si (repetir)"| U["Extraer 1 linea"]
+  U --> V["Construir: client X: (linea)"]
+  V --> W["send_to_all (a otros clientes)"]
   W --> T
   T -->|"No"| G
 ```

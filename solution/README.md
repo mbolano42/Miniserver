@@ -10,30 +10,30 @@
 
 ```mermaid
 flowchart TD
-	A["Start: ./mini_serv (puerto)"] --> B["socket(): crear"]
-	B --> C["addr: preparar"]
-	C --> D["bind(): asociar"]
-	D --> E["listen(): cola"]
-	E --> F["fd_set: maestro"]
-	F --> G{"loop: infinito"}
-	G --> H["fd_set: copia"]
-	H --> I["select(): esperar"]
-	I --> J{"listo?"}
-	J -->|"sockfd"| K["accept(): nuevo"]
-	K --> L["id: asignar"]
-	L --> M["FD_SET: incluir"]
-	M --> N["broadcast: arrived"]
+  A["Start: ./mini_serv (puerto)"] --> B["Crear socket servidor: socket()"]
+  B --> C["Configurar direccion 127.0.0.1:puerto"]
+  C --> D["bind()"]
+  D --> E["listen()"]
+  E --> F["active_fds = {sockfd}"]
+  F --> G{"Bucle infinito"}
+  G --> H["read_fds = active_fds"]
+  H --> I["select(read_fds)"]
+  I --> J{"fd listo?"}
+  J -->|"sockfd listo"| K["accept() -> connfd"]
+  K --> L["Asignar id / guardar estado"]
+  L --> M["FD_SET(connfd)"]
+  M --> N["Broadcast: server: client X just arrived \\n"]
   N --> G
-	J -->|"cliente"| O["recv(): leer"]
-	O --> P{"EOF/error?"}
-	P -->|"Si"| Q["broadcast: left"]
-	Q --> R["limpiar: salir"]
+  J -->|"cliente fd listo"| O["recv(fd)"]
+  O --> P{"ret <= 0?"}
+  P -->|"Si"| Q["Broadcast: server: client X just left \\n"]
+  Q --> R["FD_CLR(fd) / free(buffer) / close(fd)"]
   R --> G
-	P -->|"No"| S["buffer: acumular"]
-	S --> T{"linea completa?"}
-	T -->|"Si"| U["extraer: 1 linea"]
-	U --> V["prefijo: client"]
-	V --> W["send(): reenviar"]
+  P -->|"No"| S["Acumular en clients[fd].buffer"]
+  S --> T{"Hay linea con \\n?"}
+  T -->|"Si (repetir)"| U["Extraer 1 linea"]
+  U --> V["Construir: client X: (linea)"]
+  V --> W["send_to_all (a otros clientes)"]
   W --> T
   T -->|"No"| G
 ```
@@ -119,7 +119,7 @@ Valores de retorno:
 ### ¿Por qué cambiar `0` por `NULL`?
 En C, `0` y `NULL` suelen ser equivalentes como puntero nulo, pero `NULL` deja claro que hablamos de *punteros*.
 
-### ANTES (extract_message del base)
+### extract_message (BASE)
 ```c
 int extract_message(char **buf, char **msg)
 {
@@ -149,37 +149,7 @@ int extract_message(char **buf, char **msg)
 }
 ```
 
-### DESPUÉS (misma idea, estilo de la solución)
-```c
-int	extract_message(char **buf, char **msg)
-{
-	char	*newbuf;
-	int		i;
-
-	*msg = NULL;
-	if (*buf == NULL)
-		return (0);
-	i = 0;
-	while ((*buf)[i])
-	{
-		if ((*buf)[i] == '\n')
-		{
-			newbuf = calloc(strlen(*buf + i + 1) + 1, sizeof(char));
-			if (newbuf == NULL)
-				return (-1);
-			strcpy(newbuf, *buf + i + 1);
-			*msg = *buf;
-			(*msg)[i + 1] = '\0';
-			*buf = newbuf;
-			return (1);
-		}
-		i++;
-	}
-	return (0);
-}
-```
-
-### ANTES (str_join del base)
+### str_join (BASE)
 ```c
 char *str_join(char *buf, char *add)
 {
@@ -195,28 +165,6 @@ char *str_join(char *buf, char *add)
 		return (0);
 	newbuf[0] = 0;
 	if (buf != 0)
-		strcat(newbuf, buf);
-	free(buf);
-	strcat(newbuf, add);
-	return (newbuf);
-}
-```
-
-### DESPUÉS (estilo de la solución)
-```c
-char	*str_join(char *buf, char *add)
-{
-	char	*newbuf;
-	int		len;
-
-	if (buf == NULL)
-		len = 0;
-	else
-		len = strlen(buf);
-	newbuf = calloc(len + strlen(add) + 1, sizeof(char));
-	if (newbuf == NULL)
-		return (NULL);
-	if (buf != NULL)
 		strcat(newbuf, buf);
 	free(buf);
 	strcat(newbuf, add);
