@@ -10,32 +10,32 @@
 
 ```mermaid
 flowchart TD
-	A[Start: ./mini_serv <puerto>] --> B[Crear socket servidor: socket()]
-	B --> C[Configurar dirección 127.0.0.1:puerto]
-	C --> D[bind()]
-	D --> E[listen()]
-	E --> F[active_fds = {sockfd}]
-	F --> G{{Bucle infinito}}
-	G --> H[read_fds = active_fds]
-	H --> I[select(read_fds)]
-	I --> J{¿fd listo?}
-	J -->|sockfd listo| K[accept() => connfd]
-	K --> L[Asignar id / guardar estado]
-	L --> M[FD_SET(connfd)]
-	M --> N[Broadcast: "server: client X just arrived\n"]
-	N --> G
-	J -->|cliente fd listo| O[recv(fd)]
-	O --> P{ret <= 0?}
-	P -->|Sí| Q[Broadcast: "server: client X just left\n"]
-	Q --> R[FD_CLR(fd) / free(buffer) / close(fd)]
-	R --> G
-	P -->|No| S[Acumular en clients[fd].buffer]
-	S --> T{¿Hay línea con \n?}
-	T -->|Sí (repetir)| U[Extraer 1 línea]
-	U --> V[Construir: "client X: <línea>"]
-	V --> W[send_to_all (a otros clientes)]
-	W --> T
-	T -->|No| G
+  A["Start: ./mini_serv (puerto)"] --> B["Crear socket servidor: socket()"]
+  B --> C["Configurar direccion 127.0.0.1:puerto"]
+  C --> D["bind()"]
+  D --> E["listen()"]
+  E --> F["active_fds = {sockfd}"]
+  F --> G{"Bucle infinito"}
+  G --> H["read_fds = active_fds"]
+  H --> I["select(read_fds)"]
+  I --> J{"fd listo?"}
+  J -->|"sockfd listo"| K["accept() -> connfd"]
+  K --> L["Asignar id / guardar estado"]
+  L --> M["FD_SET(connfd)"]
+  M --> N["Broadcast: server: client X just arrived \\n"]
+  N --> G
+  J -->|"cliente fd listo"| O["recv(fd)"]
+  O --> P{"ret <= 0?"}
+  P -->|"Si"| Q["Broadcast: server: client X just left \\n"]
+  Q --> R["FD_CLR(fd) / free(buffer) / close(fd)"]
+  R --> G
+  P -->|"No"| S["Acumular en clients[fd].buffer"]
+  S --> T{"Hay linea con \\n?"}
+  T -->|"Si (repetir)"| U["Extraer 1 linea"]
+  U --> V["Construir: client X: (linea)"]
+  V --> W["send_to_all (a otros clientes)"]
+  W --> T
+  T -->|"No"| G
 ```
 
 Este documento te guía desde `files/main.c` (archivo base del enunciado) hasta una solución completa tipo `solution/mini_serv.c`, usando bloques **ANTES / DESPUÉS** listos para copiar y pegar.
