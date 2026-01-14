@@ -10,30 +10,30 @@
 
 ```mermaid
 flowchart TD
-	A["Start: ./mini_serv (puerto)"] --> B["socket(): crear sockfd"]
-	B --> C["servaddr: IP+puerto"]
-	C --> D["bind(): asociar"]
-	D --> E["listen(): esperar"]
-	E --> F["active_fds: conjunto"]
+  A["Start: ./mini_serv (puerto)"] --> B["socket(): crear sockfd"]
+  B --> C["servaddr: IP+puerto"]
+  C --> D["bind(): asociar"]
+  D --> E["listen(): esperar"]
+  E --> F["active_fds: conjunto"]
   F --> G{"Bucle infinito"}
-	G --> H["read_fds: copia"]
-	H --> I["select(): bloquear"]
+  G --> H["read_fds: copia"]
+  H --> I["select(): bloquear"]
   I --> J{"fd listo?"}
-	J -->|"sockfd"| K["accept(): connfd"]
-	K --> L["cliente: init"]
-	L --> M["FD_SET: incluir"]
-	M --> N["broadcast: arrived"]
+  J -->|"sockfd"| K["accept(): connfd"]
+  K --> L["cliente: init"]
+  L --> M["FD_SET: incluir"]
+  M --> N["broadcast: arrived"]
   N --> G
-	J -->|"cliente"| O["recv(): leer"]
-	O --> P{"EOF/error?"}
-	P -->|"Si"| Q["broadcast: left"]
-	Q --> R["cleanup: close"]
+  J -->|"cliente"| O["recv(): leer"]
+  O --> P{"EOF/error?"}
+  P -->|"Si"| Q["broadcast: left"]
+  Q --> R["cleanup: close"]
   R --> G
-	P -->|"No"| S["buffer: acumular"]
-	S --> T{"linea \\n?"}
-	T -->|"Si"| U["extract: linea"]
-	U --> V["prefijo: client"]
-	V --> W["send(): reenviar"]
+  P -->|"No"| S["buffer: acumular"]
+  S --> T{"linea \\n?"}
+  T -->|"Si"| U["extract: linea"]
+  U --> V["prefijo: client"]
+  V --> W["send(): reenviar"]
   W --> T
   T -->|"No"| G
 ```
