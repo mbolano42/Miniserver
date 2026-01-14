@@ -1,11 +1,21 @@
 # Mini Serv — Paso a paso “modo diff” (copiar/pegar)
 
-## Navegación
-- Volver al README raíz: [`../README.md`](../README.md)
-- Diagrama de flujo (multi-cliente): [`../README.md#diagrama-de-flujo`](../README.md#diagrama-de-flujo)
+[⬅️ Volver al README del enunciado](../README.md)
+
+## 🧭 Navegación
+- [Diagrama de flujo](#diagrama-de-flujo)
+- [Paso 1 — Reemplazar los includes](#paso-1)
+- [Paso 2 — Mantener extract_message y str_join](#paso-2)
+- [Paso 3 — Añadir estructura de cliente + estado global](#paso-3)
+- [Paso 4 — Añadir fatal_error](#paso-4)
+- [Paso 5 — Añadir broadcast y gestión de clientes](#paso-5)
+- [Paso 6 — Añadir el procesamiento de datos](#paso-6)
+- [Paso 7 — Reemplazar TODO el main()](#paso-7)
+- [Paso 8 — Resultado](#paso-8)
 
 ---
 
+<a id="diagrama-de-flujo"></a>
 ## Diagrama de flujo
 
 ```mermaid
@@ -44,6 +54,7 @@ Este documento te guía desde `files/main.c` (archivo base del enunciado) hasta 
 
 ---
 
+<a id="paso-1"></a>
 ## Paso 1 — Reemplazar los includes (añadir lo que falta)
 
 ### ANTES (`files/main.c`)
@@ -85,6 +96,7 @@ En resumen: este paso no cambia la lógica del programa, solo hace posible compi
 
 ---
 
+<a id="paso-2"></a>
 ## Paso 2 — Mantener `extract_message` y `str_join` (helpers del subject)
 
 ### Qué problema resuelven estas 2 funciones
@@ -169,6 +181,7 @@ char *str_join(char *buf, char *add)
 
 ---
 
+<a id="paso-3"></a>
 ## Paso 3 — Añadir estructura de cliente + estado global
 
 ### AÑADIR (justo después de los helpers)
@@ -205,6 +218,7 @@ fd_set		read_fds, active_fds;
 
 ---
 
+<a id="paso-4"></a>
 ## Paso 4 — Añadir `fatal_error`
 
 ### AÑADIR
@@ -225,6 +239,7 @@ Por qué existe: para cumplir el subject con un mensaje exacto y para no repetir
 
 ---
 
+<a id="paso-5"></a>
 ## Paso 5 — Añadir broadcast y gestión de clientes
 
 ### AÑADIR: `send_to_all`
@@ -316,6 +331,7 @@ Ojo: aquí se excluye al propio `connfd`, por eso si solo conectas 1 cliente con
 
 ---
 
+<a id="paso-6"></a>
 ## Paso 6 — Añadir el procesamiento de datos: `handle_client_data`
 
 ### AÑADIR
@@ -399,6 +415,7 @@ Esto pone el prefijo `client X: ` antes de la línea.
 
 ---
 
+<a id="paso-7"></a>
 ## Paso 7 — Reemplazar TODO el `main()` del base por el `main()` con select
 
 ### ANTES (`files/main.c`)
@@ -560,6 +577,7 @@ Cada vuelta:
 
 ---
 
+<a id="paso-8"></a>
 ## Paso 8 — Resultado
 
 Si aplicas los pasos anteriores, tu archivo pasa de “un cliente y prints” a:
@@ -576,3 +594,7 @@ Para ver mensajes, usa 2 terminales con `nc` (porque `send_to_all` no reenvía a
 nc 127.0.0.1 8081
 nc 127.0.0.1 8081
 ```
+
+---
+
+[⬅️ Volver al README del enunciado](../README.md)
