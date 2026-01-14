@@ -1,7 +1,28 @@
 # 🖥️ Mini Serv - Servidor de Chat
 
-## Navegación
-- Guía paso a paso (solution): [`solution/README.md`](solution/README.md)
+- ## 🧭 Navegación
+- [🧭 Navegación](#🧭-navegación)
+- [Información del Ejercicio](#📋-información-del-ejercicio)
+- [Funciones Permitidas](#📚-funciones-permitidas)
+- [Descripción](#📝-descripción)
+- [Requisitos](#⚙️-requisitos)
+  - [Argumentos](#🔧-argumentos)
+  - [Manejo de Errores](#❌-manejo-de-errores)
+  - [Restricciones](#🚫-restricciones)
+  - [Nota Técnica](#ℹ️-nota-técnica)
+- [Gestión de Clientes](#👥-gestión-de-clientes)
+  - [Conexión](#🆕-cuando-un-cliente-se-conecta)
+  - [Mensajes](#💬-mensajes-entre-clientes)
+  - [Desconexión](#👋-cuando-un-cliente-se-desconecta)
+- [Rendimiento](#⚡-rendimiento)
+- [Cómo Probar](#🧪-cómo-probar)
+  - [Consejos](#💡-consejos)
+  - [Ejemplo de Uso](#🚀-ejemplo-de-uso)
+  - [Flujo Esperado](#📊-flujo-esperado)
+- [Diagrama de flujo](#diagrama-de-flujo)
+- [Archivos de Ayuda](#📁-archivos-de-ayuda)
+- [Compilación](#🔨-compilación)
+- [📖 Guía paso a paso](#📖-guía-paso-a-paso)
 
 ## 📋 Información del Ejercicio
 
@@ -137,40 +158,6 @@ nc 127.0.0.1 8080
 
 ---
 
-## Diagrama de flujo
-
-```mermaid
-flowchart TD
-  A["Start: ./mini_serv (puerto)"] --> B["socket(): crear sockfd"]
-  B --> C["servaddr: IP+puerto"]
-  C --> D["bind(): asociar"]
-  D --> E["listen(): esperar"]
-  E --> F["active_fds: conjunto"]
-  F --> G{"Bucle infinito"}
-  G --> H["read_fds: copia"]
-  H --> I["select(): bloquear"]
-  I --> J{"fd listo?"}
-  J -->|"sockfd"| K["accept(): connfd"]
-  K --> L["cliente: init"]
-  L --> M["FD_SET: incluir"]
-  M --> N["broadcast: arrived"]
-  N --> G
-  J -->|"cliente"| O["recv(): leer"]
-  O --> P{"EOF/error?"}
-  P -->|"Si"| Q["broadcast: left"]
-  Q --> R["cleanup: close"]
-  R --> G
-  P -->|"No"| S["buffer: acumular"]
-  S --> T{"linea \\n?"}
-  T -->|"Si"| U["extract: linea"]
-  U --> V["prefijo: client"]
-  V --> W["send(): reenviar"]
-  W --> T
-  T -->|"No"| G
-```
-
----
-
 ## 📁 Archivos de Ayuda
 
 Se proporciona el archivo `main.c` con:
@@ -186,6 +173,11 @@ Se proporciona el archivo `main.c` con:
 ```bash
 gcc -Wall -Wextra -Werror mini_serv.c -o mini_serv
 ```
+
+---
+
+## 📖 Guía paso a paso
+- 📖 Guía paso a paso (solution): [`solution/README.md`](solution/README.md)
 
 ---
 
