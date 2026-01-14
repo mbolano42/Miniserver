@@ -87,8 +87,6 @@ En resumen: este paso no cambia la lógica del programa, solo hace posible compi
 
 ## Paso 2 — Mantener `extract_message` y `str_join` (helpers del subject)
 
-Aquí puedes dejar las funciones del base, pero en la solución se usan con `NULL` en vez de `0` y `calloc` para el `str_join`.
-
 ### Qué problema resuelven estas 2 funciones
 En TCP no existen “mensajes”: existe un flujo de bytes. Eso implica:
 - Un `recv()` puede devolverte media línea (`hol`), y el siguiente `recv()` el resto (`a\n`).
@@ -116,10 +114,7 @@ Valores de retorno:
 - Copia lo viejo, libera lo viejo, y devuelve el nuevo.
 - Se usa para ir pegando lo que llega por `recv` al “buffer pendiente” del cliente.
 
-### ¿Por qué cambiar `0` por `NULL`?
-En C, `0` y `NULL` suelen ser equivalentes como puntero nulo, pero `NULL` deja claro que hablamos de *punteros*.
-
-### extract_message (BASE)
+### extract_message (Función incluida con el enunciado del ejercicio)
 ```c
 int extract_message(char **buf, char **msg)
 {
@@ -149,7 +144,7 @@ int extract_message(char **buf, char **msg)
 }
 ```
 
-### str_join (BASE)
+### str_join (Función incluida con el enunciado del ejercicio)
 ```c
 char *str_join(char *buf, char *add)
 {
