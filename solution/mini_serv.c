@@ -29,8 +29,8 @@ typedef struct	s_client {
 }	t_client;
 
 // Variables globales:
-t_client	clients[65536]; // El valor 65536 se usar porque es el número máximo de "file descriptors" posibles en un sistema UNIX/Linux de 16 bits.
-int			next_id = 0;
+t_client	clients[65536]; // El valor 65536 se usar porque es el número máximo de "file descriptors" posibles en un sistema UNIX/Linux de 16 bits (2^16).
+int			next_id = 0;	// Identificador único para el próximo cliente que se conecte.
 int			max_fd = 0;
 int			sockfd;
 fd_set		read_fds, active_fds;
@@ -124,6 +124,11 @@ void remove_client(int fd)
     send_to_all(fd, msg);
     
     FD_CLR(fd, &active_fds);
+	if (fd == max_fd)
+	{
+		while (max_fd > 0 && !FD_ISSET(max_fd, &active_fds))
+			max_fd--;
+	}
     if (clients[fd].buffer)
         free(clients[fd].buffer);
     clients[fd].buffer = NULL;
@@ -187,6 +192,9 @@ void handle_client_data(int fd)
 int	main(int argc, char **argv)
 {
 	int					connfd;
+	// 'socklen_t' es un tipo de entero que se usa para representar el tamaño, en bytes,
+	// de una estructura de dirección de socket. Se usa porque muchas funciones necesitan
+	// que se les diga "cuánto mide" el 'struct sockaddr' que se les pasa.
 	socklen_t			len;
 	// La estructura sockaddr_in está definida en <netinet/in.h> y se utiliza para manejar direcciones IP y puertos en sockets de red.
 	//	struct sockaddr_in {
@@ -227,7 +235,8 @@ int	main(int argc, char **argv)
 	servaddr.sin_addr.s_addr = htonl(2130706433); // htonl convierte la dirección IP de formato host a formato de red. 2130706433 es la representación numérica de 127.0.0.1 (localhost)
 	//	- sin_port: Puerto en formato de red (convertido de cadena a entero).
 	servaddr.sin_port = htons(atoi(argv[1])); // htons convierte el puerto de formato host a formato de red. atoi convierte la cadena del argumento a un entero.
-	// Enlazamos el socket del servidor a la dirección y puerto especificados en servaddr:
+	// Enlazamos el socket del servidor a la dirección y puerto especificados en servaddr con bind().
+	// bind() asocia el socket con una dirección IP y un puerto específicos, diciéndole al kernel del sistema: "sockfd va a escuchar/enviar desde 127.0.0.1:<puerto>".
 	if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) != 0) // Si el puerto proporcionado como argumento fuera erróneo, bind() devolvería un valor distinto de cero y terminaría el programa.
 		fatal_error();
 	// Por último, ponemos el socket del servidor en modo escucha para aceptar conexiones entrantes:
@@ -241,10 +250,15 @@ int	main(int argc, char **argv)
 	}
     while (1)
     {
+		// Como read_fds se modifica por select(), cada vez antes de llamar a select() hay que reiniciarlo con el conjunto de descriptores activos (active_fds).
+		// De lo contrario, en la siguiente llamada a select() solo se comprobarían los descriptores que hubieran sido marcados en la llamada anterior.
         read_fds = active_fds;
-        
+        // select() marca sockfd en read_fds, porque hay una conexión entrante pendiente en la cola de listen().
+		// Si un cliente ya conectado ha enviado datos, select() marcará su file descriptor en read_fds.
+		// select() modifica read_fds para indicar qué descriptores de archivo están listos para lectura.
+		// Por el contrario, si no hay actividad en ningún descriptor, select() devolverá -1 y se repetirá el bucle.
         if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0)
-            continue;
+            continue ;
         
         for (int fd = 0; fd <= max_fd; fd++)
         {
